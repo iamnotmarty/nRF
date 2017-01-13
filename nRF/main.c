@@ -4,62 +4,45 @@
 #include "stm32f10x.h"
 #include "stm32f10x_conf.h"
 
-#define sensorL_port 	GPIOA
-#define sensorL_pin 	GPIO_Pin_11
 
-#define sensorR_port	GPIOA	
-#define sensorR_pin		GPIO_Pin_10
 
-#define motorL1_port	GPIOB
-#define motorL1_pin		GPIO_Pin_0
+/*
+STM32F103 SPI2 output pin definition
+Port B
+*/
+#define SPI_GPIO_Port	GPIOB
+#define SPI_CSN				GPIO_Pin_12
+#define SPI_SCK 			GPIO_Pin_13
+#define SPI_MISO 			GPIO_Pin_14
+#define SPI_MOSI 			GPIO_Pin_15
+#define SPI_CE 				GPIO_Pin_10
 
-#define motorL2_port	GPIOB
-#define motorL2_pin		GPIO_Pin_1
 
-#define motorLEN_port	GPIOA
-#define motorLEN_pin	GPIO_Pin_6
 
-#define motorR1_port	GPIOB
-#define motorR1_pin		GPIO_Pin_8
 
-#define motorR2_port	GPIOB
-#define motorR2_pin		GPIO_Pin_9
 
-#define motorREN_port	GPIOA
-#define motorREN_pin	GPIO_Pin_7
 
-#define distanceSensor_port 	GPIOA
-#define distanceSensor_pin		GPIO_Pin_1
 
-#define leftencoder_port	GPIOA
-#define leftencoder_pin		GPIO_Pin_2
 
-#define rightencoder_port	GPIOA
-#define rightencoder_pin	GPIO_Pin_3
+
+
 
 //Initialization functions
 static void GPIO_initialize(void);
 static void TIM_initialize(void);
 static void ADC_initialize(void);
-static void Motor_PWM_initialize(void);
 static void NVIC_Configuration(void);
 static void RCC_initialize(void);
-static void sensor_init(void);
-static void motor_init(void);
+static void SPI_initialize(void);
 
 //Sensor value acquisition functions
 float analog_voltage(uint8_t);
 
-//Robot movement functions 
-static void full_stop(void);
-static void forward(void);
-static void backward(void);
-static void stationary_left(void);
-static void stationary_right(void);
 
 
 //Type Define
 GPIO_InitTypeDef  GPIO_InitStructure;
+SPI_InitTypeDef		SPI_InitStructure;
 TIM_TimeBaseInitTypeDef timerInitStructure;
 NVIC_InitTypeDef NVIC_InitStructure;
 ADC_InitTypeDef  ADC_InitStructure;
@@ -71,12 +54,7 @@ uint16_t CCR2_Val = 80;
 
 uint16_t PrescalerValue = 0;
 
-uint8_t sensorL = 0;
-uint8_t sensorR = 0;
-float distance = 0;
 
-uint16_t left_EncoderCount = 0;
-uint16_t right_EncoderCounter = 0;
 uint8_t timer_flag = 0;
 
 uint8_t counter = 0;
@@ -108,13 +86,12 @@ uint8_t counter = 0;
 
 int main(void) {
 	
-	RCC_initialize();		
-	sensor_init();
-	motor_init();
+	RCC_initialize();
+	GPIO_initialize();
 	NVIC_Configuration();	
-	TIM_initialize();
-	Motor_PWM_initialize();
+	TIM_initialize();	
 	ADC_initialize();
+	SPI_initialize();
 	
 		// Start Timer 3
 	TIM_Cmd(TIM3, ENABLE);
@@ -133,102 +110,67 @@ int main(void) {
 	TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
 	
 	
-	// Initialize misc GPIO pins
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;	
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;	
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	
-	
-	
-	
 	// LOOOOOOOOP
 	while(1) {
+		
+		
+		
+		
+		
+		
+		
 	
-		/* Get all sensor values */
-//-----------------------------------------------------------------		
-		distance = 27/analog_voltage(1);
-		
-		// 0 = obstacle
-		// 1 = unblocked
-		sensorL = GPIO_ReadInputDataBit(sensorL_port, sensorL_pin);
-		sensorR = GPIO_ReadInputDataBit(sensorR_port, sensorR_pin);
-//-----------------------------------------------------------------
-		
-		
-		
-		/*Robot action*/
-//------------------------------------------------------------------		
-		// If no obstacles, move forward
-		if ((distance >= 7)&&(sensorL==1)&&(sensorR==1)){
-			forward();
-
-		// If distance sensor blocked, turn right
-		}
-		else if((distance < 7)&&(sensorL==1)&&(sensorR==1)){
-			stationary_right();
-		// If left sensor blocked, turn right
-		}
-		else if((distance >= 7)&&(sensorL==0)&&(sensorR==1)){
-			stationary_right();
-
-		// If right sensor blocked, turn left
-		}
-		else if((distance >= 7)&&(sensorL==1)&&(sensorR==0)){
-			stationary_left();
-		// If distance + left sensor blocked, turn right
-		}
-		else if((distance < 7)&&(sensorL==0)&&(sensorR==1)){
-			stationary_right();
-		// If distance + right sensor blocked, turn left
-		}
-		else if((distance < 7)&&(sensorL==1)&&(sensorR==0)){
-			stationary_left();
-		// If only left and right sensor blocked, turn right
-		}
-		else if((distance >= 7)&&(sensorL==0)&&(sensorR==0)){
-			stationary_right();
-		// If all blocked, turn right
-		}
-		else if((distance < 7)&&(sensorL==0)&&(sensorR==0)){
-			stationary_right();		
-		}
-		else{
-		
-		}
-//------------------------------------------------------------
-				
-		
-/*Encoder counter*/
-		
-		if (analog_voltage(3) > 1.5){
-			GPIO_SetBits(GPIOB, GPIO_Pin_5);
-		
-		} else {
-		
-			GPIO_ResetBits(GPIOB, GPIO_Pin_5);
-		}
-
+	
   }		
 }
 
+void SPI_initialize(void){
+
+			SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
+      SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
+      SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
+      SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
+      SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
+      SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
+      SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;
+      SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
+      SPI_InitStructure.SPI_CRCPolynomial = 7;
+      SPI_Init(SPI2, &SPI_InitStructure);
+
+      /* Enable SPIz */
+      SPI_Cmd(SPI2, ENABLE);
+
+}
+
+
 
 void GPIO_initialize(void){
+	
+// Configure SPI_SCK pin
+  GPIO_InitStructure.GPIO_Pin = SPI_MOSI;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(SPI_GPIO_Port, &GPIO_InitStructure);
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+// Configure SPI_MOSI pin
+	GPIO_InitStructure.GPIO_Pin = SPI_MOSI;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(SPI_GPIO_Port, &GPIO_InitStructure);
+	
+	
+// Configure SPI_MISO pin
+  GPIO_InitStructure.GPIO_Pin = SPI_MISO;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(SPI_GPIO_Port, &GPIO_InitStructure);
+	
+
+// Configure SPI_CE pin
+	GPIO_InitStructure.GPIO_Pin = SPI_CE;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_Init(SPI_GPIO_Port, &GPIO_InitStructure);
+	
 }
 
 void TIM_initialize(void){
@@ -262,51 +204,36 @@ void TIM_initialize(void){
 }
 
 
-void Motor_PWM_initialize(void){
-		
-    // Left Motor PWM Enable pins output channels initialize
-	  outputChannelInit.TIM_OCMode = TIM_OCMode_PWM1;
-    outputChannelInit.TIM_Pulse = CCR1_Val;
-    outputChannelInit.TIM_OutputState = TIM_OutputState_Enable;
-    outputChannelInit.TIM_OCPolarity = TIM_OCPolarity_High;
- 
-    TIM_OC1Init(TIM3, &outputChannelInit);
-    TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Enable);
-		TIM_ARRPreloadConfig(TIM3, ENABLE);
-	
-	  // Right Motor PWM Enable pins output channels initialize
-		outputChannelInit.TIM_OCMode = TIM_OCMode_PWM1;
-    outputChannelInit.TIM_Pulse = CCR2_Val;
-    outputChannelInit.TIM_OutputState = TIM_OutputState_Enable;
-    outputChannelInit.TIM_OCPolarity = TIM_OCPolarity_High;
- 
-    TIM_OC2Init(TIM3, &outputChannelInit);
-    TIM_OC2PreloadConfig(TIM3, TIM_OCPreload_Enable);
-		TIM_ARRPreloadConfig(TIM3, ENABLE);
-}
 
 //Initialize RCC clocks
 void RCC_initialize(void){
 	
-	//APB2 - GPIO A
+	// RCC SPI2 CLK should be < 10 MHz
+	//RCC_PCLK2Config(RCC_HCLK_Div16);
+	
+	//GPIO A
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA , ENABLE);
 	
-	//APB2 - GPIO B
+	//GPIO B (SPI pins)
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+		
+	//SPI2 (SPI pins)
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
 	
-	//APB2 - TIMER 1
-	//RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
 	
-	//APB1 - TIMER 2
+	
+	
+	
+
+	
+	//TIMER 2
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-	
-	//APB1 - TIMER 3 -> PWM
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-	
-		//APB1 - TIMER 4 -> Sensor delay
+
+		//TIMER 4
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
 	
-	  /* Enable ADC1 clock so that we can talk to it */
+	 // ADC1
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
 }
 
@@ -372,89 +299,6 @@ void ADC_initialize(void){
 }
 
 
-void sensor_init(void){
-
-	// Left obstacle sensor
-	GPIO_InitStructure.GPIO_Pin = sensorL_pin;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;	
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
-	GPIO_Init(sensorL_port, &GPIO_InitStructure);
-	
-	// Right obstacle sensor
-	GPIO_InitStructure.GPIO_Pin = sensorR_pin;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;	
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
-	GPIO_Init(sensorR_port, &GPIO_InitStructure);
-	
-	// Analog distance sensor
-	GPIO_InitStructure.GPIO_Pin = distanceSensor_pin;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;	
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
-	GPIO_Init(distanceSensor_port, &GPIO_InitStructure);
-	
-	// Analog input left encoder
-	GPIO_InitStructure.GPIO_Pin = leftencoder_pin;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;	
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
-	GPIO_Init(leftencoder_port, &GPIO_InitStructure);
-		
-	// Analog input right encoder
-	GPIO_InitStructure.GPIO_Pin = rightencoder_pin;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;	
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
-	GPIO_Init(rightencoder_port, &GPIO_InitStructure);
-	
-	
-}
-
-// Initialize motor pins
-void motor_init(void){
-	
-	/*
-	Initialize left motor pins
-	*/
-	
-	//Left forward pin
-	GPIO_InitStructure.GPIO_Pin = motorL1_pin;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
-	GPIO_Init(motorL1_port, &GPIO_InitStructure);
-	
-	//Left backward pin
-	GPIO_InitStructure.GPIO_Pin = motorL2_pin;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
-	GPIO_Init(motorL2_port, &GPIO_InitStructure);	
-	
-	//Left PWM pin
-	GPIO_InitStructure.GPIO_Pin = motorLEN_pin;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
-	GPIO_Init(motorLEN_port, &GPIO_InitStructure);
-	
-	/*
-	Initialize right motor pins
-	*/
-	
-	// Right forward pin
-	GPIO_InitStructure.GPIO_Pin = motorR1_pin;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
-	GPIO_Init(motorR1_port, &GPIO_InitStructure);	
-	
-	// Right backward pin
-	GPIO_InitStructure.GPIO_Pin = motorR2_pin;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
-	GPIO_Init(motorR2_port, &GPIO_InitStructure);	
-	
-	// RIght PWM pin
-	GPIO_InitStructure.GPIO_Pin = motorREN_pin;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
-	GPIO_Init(motorREN_port, &GPIO_InitStructure);
-}
-	
 
 /* Interrupt Handling */
 
@@ -506,91 +350,4 @@ float analog_voltage (uint8_t channel){
 	
 }
 
-
-void full_stop(void){
-			
-			// Left enable pulse = 0
-			outputChannelInit.TIM_Pulse = 0;
-			TIM_OC1Init(TIM3,&outputChannelInit);
-			
-			// Right enable pulse = 0
-			outputChannelInit.TIM_Pulse = 0;
-			TIM_OC2Init(TIM3,&outputChannelInit);
-}
-
-void forward(void){
-	
-		// Set forward state motor controller pins
-		GPIO_SetBits(motorL1_port,motorL1_pin);
-		GPIO_ResetBits(motorL2_port,motorL2_pin);
-		
-		GPIO_SetBits(motorR1_port,motorR1_pin);
-		GPIO_ResetBits(motorR2_port,motorR2_pin);
-	
-					// Left enable pulse = 0
-			outputChannelInit.TIM_Pulse = 50;
-			TIM_OC1Init(TIM3,&outputChannelInit);
-			
-			// Right enable pulse = 0
-			outputChannelInit.TIM_Pulse = 80;
-			TIM_OC2Init(TIM3,&outputChannelInit);
-}
-
-
-
-void backward(void){
-	
-		// Set forward state motor controller pins
-		GPIO_ResetBits(motorL1_port,motorL1_pin);
-		GPIO_SetBits(motorL2_port,motorL2_pin);
-		
-		GPIO_ResetBits(motorR1_port,motorR1_pin);
-		GPIO_SetBits(motorR2_port,motorR2_pin);
-	
-					// Left enable pulse = 0
-			outputChannelInit.TIM_Pulse = 50;
-			TIM_OC1Init(TIM3,&outputChannelInit);
-			
-			// Right enable pulse = 0
-			outputChannelInit.TIM_Pulse = 80;
-			TIM_OC2Init(TIM3,&outputChannelInit);
-}
-
-void stationary_left(void){
-	// Set backward state for left motor 
-		GPIO_ResetBits(motorL1_port,motorL1_pin);
-		GPIO_SetBits(motorL2_port,motorL2_pin);
-		
-	// Set forward state for right motor
-		GPIO_SetBits(motorR1_port,motorR1_pin);
-		GPIO_ResetBits(motorR2_port,motorR2_pin);
-	
-					// Left enable pulse = 0
-			outputChannelInit.TIM_Pulse = 50;
-			TIM_OC1Init(TIM3,&outputChannelInit);
-			
-			// Right enable pulse = 0
-			outputChannelInit.TIM_Pulse = 80;
-			TIM_OC2Init(TIM3,&outputChannelInit);
-
-}
-
-void stationary_right(void){
-	// Set forward state for left motor 
-		GPIO_SetBits(motorL1_port,motorL1_pin);
-		GPIO_ResetBits(motorL2_port,motorL2_pin);
-		
-	// Set backward state for right motor
-		GPIO_ResetBits(motorR1_port,motorR1_pin);
-		GPIO_SetBits(motorR2_port,motorR2_pin);
-	
-					// Left enable pulse = 0
-			outputChannelInit.TIM_Pulse = 50;
-			TIM_OC1Init(TIM3,&outputChannelInit);
-			
-			// Right enable pulse = 0
-			outputChannelInit.TIM_Pulse = 80;
-			TIM_OC2Init(TIM3,&outputChannelInit);
-
-}
 
