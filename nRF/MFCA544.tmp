@@ -1,0 +1,211 @@
+//Imported files
+#include <stdio.h>
+#include <stdbool.h>
+#include "stm32f10x.h"
+#include "stm32f10x_conf.h"
+
+#define sensor1_port GPIOB
+#define sensor1_pin GPIO_Pin_0
+
+//Functions
+static void GPIO_initialize(void);
+static void TIM_initialize(void);
+static void PWM_initialize(void);
+static void RCC_initialize(void);
+static bool path_clear_sensor1 (void);
+
+//Type Define
+GPIO_InitTypeDef  GPIO_InitStructure;
+TIM_TimeBaseInitTypeDef timerInitStructure;
+NVIC_InitTypeDef NVIC_InitStructure;
+TIM_OCInitTypeDef outputChannelInit = {0,};	
+
+//Variables
+uint16_t CCR1_Val = 50;
+uint16_t CCR2_Val = 75;
+uint16_t CCR3_Val = 50;
+uint16_t CCR4_Val = 25;
+uint16_t PrescalerValue = 0;
+
+
+
+
+/*APB1 -> 36MHz
+	APB2 -> 72MHz
+	AHB  -> 72MHz*/
+
+/* -----------------------------------------------------------------------
+    TIM3 Configuration: generate 4 PWM signals with 4 different duty cycles:
+    The TIM3CLK frequency is set to SystemCoreClock (Hz), to get TIM3 counter
+    clock at 24 MHz the Prescaler is computed as following:
+     - Prescaler = (TIM3CLK / TIM3 counter clock) - 1
+
+    SystemCoreClock is set to 72 MHz for Low-density, Medium-density, High-density
+    and Connectivity line devices and to 24 MHz for Low-Density Value line and
+    Medium-Density Value line devices
+		
+    The TIM3 is running at 36 KHz: TIM3 Frequency = TIM3 counter clock/(ARR + 1)
+                                                  = 24 MHz / 666 = 36 KHz
+																									
+    TIM3 Channel1 duty cycle = (TIM3_CCR1/ TIM3_ARR)* 100 = 50%
+    TIM3 Channel2 duty cycle = (TIM3_CCR2/ TIM3_ARR)* 100 = 37.5%
+    TIM3 Channel3 duty cycle = (TIM3_CCR3/ TIM3_ARR)* 100 = 25%
+    TIM3 Channel4 duty cycle = (TIM3_CCR4/ TIM3_ARR)* 100 = 12.5%
+  ----------------------------------------------------------------------- */
+
+
+int main(void) {
+	
+	
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB, ENABLE);
+	
+	
+	
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	
+	
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;	
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
+	//GPIO_Init(GPIOB, &GPIO_InitStructure);
+	
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;	
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	
+	timerInitStructure.TIM_Prescaler = 7200;
+  timerInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
+  timerInitStructure.TIM_Period = 100;
+  timerInitStructure.TIM_ClockDivision = 0;
+  timerInitStructure.TIM_RepetitionCounter = 0;
+  TIM_TimeBaseInit(TIM1, &timerInitStructure);
+
+	
+	
+	outputChannelInit.TIM_OCMode = TIM_OCMode_PWM1;
+  outputChannelInit.TIM_Pulse = CCR1_Val;
+  outputChannelInit.TIM_OutputState = TIM_OutputState_Enable;
+  outputChannelInit.TIM_OCPolarity = TIM_OCPolarity_High;
+ 
+  TIM_OC2Init(TIM1, &outputChannelInit);
+  TIM_OC2PreloadConfig(TIM1, TIM_OCPreload_Enable);
+  TIM_ARRPreloadConfig(TIM1, ENABLE);
+	
+
+	TIM_Cmd(TIM1, ENABLE);
+	TIM_CtrlPWMOutputs(TIM1,ENABLE);
+	
+	
+	while(1) {
+			
+		if (path_clear_sensor1() == true){
+			GPIO_SetBits(GPIOB,GPIO_Pin_1);
+		} else {
+			GPIO_ResetBits(GPIOB,GPIO_Pin_1);
+		}
+		
+		
+		
+		
+  }	
+}
+
+
+
+
+
+
+bool path_clear_sensor1 (void){
+	
+	static uint8_t sensor1_val = 0;	
+	sensor1_val = GPIO_ReadInputDataBit(sensor1_port, sensor1_pin);
+
+	if (sensor1_val == 1) {
+		return true;
+	} else {
+		return false;
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+// Function definition
+void GPIO_initialize(void){
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+}
+
+
+
+void TIM_initialize(void){
+	
+	timerInitStructure.TIM_Prescaler = 7200;
+  timerInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
+  timerInitStructure.TIM_Period = 100;
+  timerInitStructure.TIM_ClockDivision = 0;
+  timerInitStructure.TIM_RepetitionCounter = 0;
+  TIM_TimeBaseInit(TIM1, &timerInitStructure);
+  
+}
+
+void PWM_initialize(void){
+		
+    outputChannelInit.TIM_OCMode = TIM_OCMode_PWM1;
+    outputChannelInit.TIM_Pulse = CCR1_Val;
+    outputChannelInit.TIM_OutputState = TIM_OutputState_Enable;
+    outputChannelInit.TIM_OCPolarity = TIM_OCPolarity_High;
+ 
+    TIM_OC2Init(TIM1, &outputChannelInit);
+    TIM_OC2PreloadConfig(TIM1, TIM_OCPreload_Enable);
+		TIM_ARRPreloadConfig(TIM1, ENABLE);
+}
+
+void RCC_initialize(void){
+	
+	//Timer 1 clock init
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+	
+	//GPIO A clock init
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);	
+
+}
+
+void NVIC_Configuration(void)
+{
+
+  NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;   
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;      
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure); 
+}
+
+
+void TIM2_IRQHandler(void)
+{
+  if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
+  {
+    TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+
+    /* Whatever */
+
+   
+  }
+}
