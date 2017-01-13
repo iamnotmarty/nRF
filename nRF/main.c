@@ -113,8 +113,11 @@ int main(void) {
 	// LOOOOOOOOP
 	while(1) {
 		
+		// Wait for TX buffer to be empty
+		if (SPI_I2S_GetFlagStatus(SPI2,SPI_I2S_FLAG_TXE)==RESET){
+			//SPI_I2S_SendData(SPI2, )		
 		
-		
+		} else {};
 		
 		
 		
