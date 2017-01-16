@@ -384,6 +384,16 @@
               <FileType>1</FileType>
               <FilePath>.\main.c</FilePath>
             </File>
+            <File>
+              <FileName>nRF24.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\nRF24.h</FilePath>
+            </File>
+            <File>
+              <FileName>nRF24.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\nRF24.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
