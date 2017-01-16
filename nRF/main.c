@@ -17,8 +17,33 @@ Port B
 #define SPI_MOSI 			GPIO_Pin_15
 #define SPI_CE 				GPIO_Pin_10
 
-
-
+/*
+nRF24L01 Registers definition (5-bit)
+*/
+#define CONFIG 			0b00000
+#define EN_AA	 			0b00001
+#define EN_RXADDR 	0b00010
+#define SETUP_AW		0b00011
+#define SETUP_RETR 	0b00100
+#define RF_CH				0b00101
+#define RF_SETUP		0b00110
+#define STATUS			0b00111
+#define OBSERVE_TX	0b01000
+#define RPD					0b01001
+#define RX_ADDR_P0	0b01010
+#define RX_ADDR_P1	0b01011
+#define RX_ADDR_P2	0b01100
+#define RX_ADDR_P3	0b01101
+#define RX_ADDR_P4	0b01110
+#define RX_ADDR_P5	0b01111
+#define TX_ADDR			0b10000
+#define RX_PW_P0		0b10001
+#define RX_PW_P1		0b10010
+#define RX_PW_P2		0b10011
+#define RX_PW_P3		0b10100
+#define RX_PW_P4		0b10101
+#define RX_PW_P5		0b10110
+#define FIFO_STATUS	0b10111
 
 
 
