@@ -47,7 +47,8 @@ uint16_t CCR2_Val = 80;
 uint16_t PrescalerValue = 0;
 
 
-uint8_t timer_flag = 0;
+uint8_t timer_flag1 = 0;
+uint8_t timer_flag2 = 0;
 
 uint8_t counter = 0;
 
@@ -85,6 +86,9 @@ int main(void) {
 	ADC_initialize();
 	SPI_initialize();
 	
+	
+	nRF_RX_TX_MODE(timer_flag1);
+	
 		// Start Timer 3
 	TIM_Cmd(TIM3, ENABLE);
 	
@@ -92,7 +96,7 @@ int main(void) {
 	TIM_CtrlPWMOutputs(TIM3,ENABLE);	
 	
 	// Start Timer 2
-	TIM_Cmd(TIM2, ENABLE);
+	//TIM_Cmd(TIM2, ENABLE);
 	TIM_Cmd(TIM4, ENABLE);
 		
 	// Start Timer 2 interrupt
@@ -104,14 +108,6 @@ int main(void) {
 	
 	// LOOOOOOOOP
 	while(1) {
-		
-		// Wait for TX buffer to be empty
-		if (SPI_I2S_GetFlagStatus(SPI2,SPI_I2S_FLAG_TXE)==RESET){
-			//SPI_I2S_SendData(SPI2, )		
-		
-		} else {};
-		
-		
 		
 		
 	
@@ -307,8 +303,10 @@ void TIM2_IRQHandler(void)
   if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
   {
     TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+		
+	timer_flag2 = 1;
 
-    // Whatever 
+    /* Whatever 
 		if (counter == 0){
 			
 			GPIO_ResetBits(GPIOA, GPIO_Pin_0);
@@ -316,8 +314,9 @@ void TIM2_IRQHandler(void)
 		}else if (counter==1){
 			GPIO_SetBits(GPIOA, GPIO_Pin_0);
 			counter=0;
-		}    
+		} */   
   }
+		
 } 
 
 

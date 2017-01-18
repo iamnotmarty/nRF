@@ -1,5 +1,5 @@
 Dependencies for Project 'nRF', Target 'Target 1': (DO NOT MODIFY !)
-F (.\main.c)(0x587FA216)(-c --cpu Cortex-M3 -D__EVAL -g -O0 --apcs=interwork --split_sections-IF:\nRF\nRF\RTE\Device\STM32F103C8-IF:\nRF\nRF\RTE\_Target_1-IF:\Keil_5\ARM\PACK\ARM\CMSIS\5.0.0\CMSIS\Driver\Include-IF:\Keil_5\ARM\PACK\ARM\CMSIS\5.0.0\CMSIS\Include-IF:\Keil_5\ARM\PACK\Keil\MDK-Middleware\7.3.0\Board-IF:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-IF:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\StdPeriph_Driver\inc-IF:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\RTE_Driver-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F10X_MD-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+F (.\main.c)(0x587FB4D5)(-c --cpu Cortex-M3 -D__EVAL -g -O0 --apcs=interwork --split_sections-IF:\nRF\nRF\RTE\Device\STM32F103C8-IF:\nRF\nRF\RTE\_Target_1-IF:\Keil_5\ARM\PACK\ARM\CMSIS\5.0.0\CMSIS\Driver\Include-IF:\Keil_5\ARM\PACK\ARM\CMSIS\5.0.0\CMSIS\Include-IF:\Keil_5\ARM\PACK\Keil\MDK-Middleware\7.3.0\Board-IF:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-IF:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\StdPeriph_Driver\inc-IF:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\RTE_Driver-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F10X_MD-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
 I (F:\Keil_5\ARM\ARMCC\include\stdio.h)(0x57F6BD88)
 I (F:\Keil_5\ARM\ARMCC\include\stdbool.h)(0x57F6BD88)
 I (F:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include\stm32f10x.h)(0x53BAC430)
@@ -22,10 +22,10 @@ I (F:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\StdPeriph_Driver\inc\stm32
 I (F:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\StdPeriph_Driver\inc\stm32f10x_tim.h)(0x52FAA1F0)
 I (F:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\StdPeriph_Driver\inc\stm32f10x_usart.h)(0x52FAA1F0)
 I (F:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\StdPeriph_Driver\inc\misc.h)(0x52FAA1F0)
-I (nRF24.h)(0x587FA5B1)
-F (.\nRF24.h)(0x587FA5B1)()
-F (.\nRF24.c)(0x587FA5C3)(-c --cpu Cortex-M3 -D__EVAL -g -O0 --apcs=interwork --split_sections-IF:\nRF\nRF\RTE\Device\STM32F103C8-IF:\nRF\nRF\RTE\_Target_1-IF:\Keil_5\ARM\PACK\ARM\CMSIS\5.0.0\CMSIS\Driver\Include-IF:\Keil_5\ARM\PACK\ARM\CMSIS\5.0.0\CMSIS\Include-IF:\Keil_5\ARM\PACK\Keil\MDK-Middleware\7.3.0\Board-IF:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-IF:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\StdPeriph_Driver\inc-IF:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\RTE_Driver-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F10X_MD-o .\objects\nrf24.o --omf_browse .\objects\nrf24.crf --depend .\objects\nrf24.d)
-I (nRF24.h)(0x587FA5B1)
+I (nRF24.h)(0x587FAACF)
+F (.\nRF24.h)(0x587FAACF)()
+F (.\nRF24.c)(0x587FB4C3)(-c --cpu Cortex-M3 -D__EVAL -g -O0 --apcs=interwork --split_sections-IF:\nRF\nRF\RTE\Device\STM32F103C8-IF:\nRF\nRF\RTE\_Target_1-IF:\Keil_5\ARM\PACK\ARM\CMSIS\5.0.0\CMSIS\Driver\Include-IF:\Keil_5\ARM\PACK\ARM\CMSIS\5.0.0\CMSIS\Include-IF:\Keil_5\ARM\PACK\Keil\MDK-Middleware\7.3.0\Board-IF:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-IF:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\StdPeriph_Driver\inc-IF:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\RTE_Driver-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F10X_MD-o .\objects\nrf24.o --omf_browse .\objects\nrf24.crf --depend .\objects\nrf24.d)
+I (nRF24.h)(0x587FAACF)
 I (F:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\StdPeriph_Driver\inc\stm32f10x_spi.h)(0x52FAA1F0)
 I (F:\Keil_5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include\stm32f10x.h)(0x53BAC430)
 I (F:\nRF\nRF\RTE\_Target_1\RTE_Components.h)(0x587C6313)
