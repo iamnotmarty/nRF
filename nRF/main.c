@@ -21,9 +21,9 @@ Port B
 
 //Initialization functions
 static void GPIO_initialize(void);
-static void TIM_initialize(void);
+void TIM_initialize(void);
 static void ADC_initialize(void);
-static void NVIC_Configuration(void);
+void NVIC_Configuration(void);
 static void RCC_initialize(void);
 static void SPI_initialize(void);
 
@@ -48,7 +48,7 @@ uint16_t PrescalerValue = 0;
 
 
 uint8_t timer_flag1 = 0;
-uint8_t timer_flag2 = 0;
+int timer_flag2 = 0;
 
 uint8_t counter = 0;
 
@@ -84,33 +84,47 @@ int main(void) {
 	NVIC_Configuration();	
 	TIM_initialize();	
 	ADC_initialize();
-	SPI_initialize();
-	
-	
-	nRF_RX_TX_MODE(timer_flag1);
+	GPIO_SetBits(SPI_GPIO_Port, SPI_CE);
+	//SPI_initialize();
 	
 		// Start Timer 3
-	TIM_Cmd(TIM3, ENABLE);
+	//TIM_Cmd(TIM3, ENABLE);
 	
 	// Start Timer 3 PWM output
-	TIM_CtrlPWMOutputs(TIM3,ENABLE);	
+	//TIM_CtrlPWMOutputs(TIM3,ENABLE);	
 	
-	// Start Timer 2
-	//TIM_Cmd(TIM2, ENABLE);
-	TIM_Cmd(TIM4, ENABLE);
-		
-	// Start Timer 2 interrupt
-	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);	
+	
+	TIM_Cmd(TIM4, ENABLE);	
 	
 	// Start Timer 4 interrupt
 	TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
 	
 	
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	
+		// Start Timer 2 interrupt
+	//TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+	//TIM_Cmd(TIM2, ENABLE);
+	
+	nRF_RX_TX_MODE();
 	// LOOOOOOOOP
 	while(1) {
 		
+		/*
+		if (timer_flag2 == 1){
+			GPIO_SetBits(GPIOA, GPIO_Pin_9);
 		
-	
+		}
+		
+		if (timer_flag2 == 0){
+			GPIO_ResetBits(GPIOA, GPIO_Pin_9);
+		
+		}
+		
+		*/
 	
   }		
 }
@@ -163,7 +177,7 @@ void GPIO_initialize(void){
 
 // Configure SPI_CE pin
 	GPIO_InitStructure.GPIO_Pin = SPI_CE;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
 	GPIO_Init(SPI_GPIO_Port, &GPIO_InitStructure);
 	
@@ -173,14 +187,21 @@ void TIM_initialize(void){
 	
 	
 	// Initialize Timer 2
-	timerInitStructure.TIM_Prescaler = 7200;
-  timerInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
-  timerInitStructure.TIM_Period = 5000;
+	timerInitStructure.TIM_Prescaler = 14400;
+  timerInitStructure.TIM_CounterMode = TIM_CounterMode_Down;
+  timerInitStructure.TIM_Period = 10000;
   timerInitStructure.TIM_ClockDivision = 0;
   timerInitStructure.TIM_RepetitionCounter = 0;
   TIM_TimeBaseInit(TIM2, &timerInitStructure);
+	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+
+	// Configure so that the interrupt flag is only set upon overflow
+	TIM_UpdateRequestConfig(TIM2, TIM_UpdateSource_Regular);
+
+	// Enable the TIM5 Update Interrupt type
+	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
 	
-	
+	/*
 	//	Initialize Timer 3 -> PWM pins
 	timerInitStructure.TIM_Prescaler = 7200;
   timerInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
@@ -188,6 +209,7 @@ void TIM_initialize(void){
   timerInitStructure.TIM_ClockDivision = 0;
   timerInitStructure.TIM_RepetitionCounter = 0;
   TIM_TimeBaseInit(TIM3, &timerInitStructure);
+	*/
 	
 	// Initialize Timer 4 -> Obstacle sensor delay
 	timerInitStructure.TIM_Prescaler = 7200;
@@ -304,15 +326,22 @@ void TIM2_IRQHandler(void)
   {
     TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 		
-	timer_flag2 = 1;
-
-    /* Whatever 
+		timer_flag2 = 1;
+		
+		/*
+		if (timer_flag2 == 1){
+			timer_flag2 = 0;
+		} else if(timer_flag2==0){
+			timer_flag2 = 1;
+		}
+*/
+    /*
 		if (counter == 0){
 			
-			GPIO_ResetBits(GPIOA, GPIO_Pin_0);
+			GPIO_ResetBits(GPIOA, GPIO_Pin_9);
 			counter=1;
 		}else if (counter==1){
-			GPIO_SetBits(GPIOA, GPIO_Pin_0);
+			GPIO_SetBits(GPIOA, GPIO_Pin_9);
 			counter=0;
 		} */   
   }

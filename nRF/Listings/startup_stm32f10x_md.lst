@@ -477,15 +477,15 @@ ARM Macro Assembler    Page 8
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
 ork --depend=.\objects\startup_stm32f10x_md.d -o.\objects\startup_stm32f10x_md.
-o -IF:\nRF\nRF\RTE\Device\STM32F103C8 -IF:\nRF\nRF\RTE\_Target_1 -IF:\Keil_5\AR
-M\PACK\ARM\CMSIS\5.0.0\CMSIS\Driver\Include -IF:\Keil_5\ARM\PACK\ARM\CMSIS\5.0.
-0\CMSIS\Include -IF:\Keil_5\ARM\PACK\Keil\MDK-Middleware\7.3.0\Board -IF:\Keil_
-5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include -IF:\Keil_5\ARM\PACK\Keil\ST
-M32F1xx_DFP\2.1.0\Device\StdPeriph_Driver\inc -IF:\Keil_5\ARM\PACK\Keil\STM32F1
-xx_DFP\2.1.0\RTE_Driver --predefine="__EVAL SETA 1" --predefine="__UVISION_VERS
-ION SETA 522" --predefine="_RTE_ SETA 1" --predefine="STM32F10X_MD SETA 1" --li
-st=.\listings\startup_stm32f10x_md.lst RTE\Device\STM32F103C8\startup_stm32f10x
-_md.s
+o -ID:\nRF\nRF\RTE -ID:\nRF\nRF\RTE\Device\STM32F103C8 -ID:\Keil_v5\ARM\PACK\AR
+M\CMSIS\5.0.0-Beta4\CMSIS\Driver\Include -ID:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.0-
+Beta4\CMSIS\Include -ID:\Keil_v5\ARM\PACK\Keil\MDK-Middleware\7.1.0\Board -ID:\
+Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include -ID:\Keil_v5\ARM\PACK\
+Keil\STM32F1xx_DFP\2.1.0\Device\StdPeriph_Driver\inc -ID:\Keil_v5\ARM\PACK\Keil
+\STM32F1xx_DFP\2.1.0\RTE_Driver --predefine="__EVAL SETA 1" --predefine="__UVIS
+ION_VERSION SETA 517" --predefine="_RTE_ SETA 1" --predefine="STM32F10X_MD SETA
+ 1" --list=.\listings\startup_stm32f10x_md.lst RTE\Device\STM32F103C8\startup_s
+tm32f10x_md.s
 
 
 

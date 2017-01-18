@@ -1,4 +1,7 @@
 
+extern int timer_flag2;
+
+
 /*
 nRF24L01 Registers definition (5-bit)
 */
@@ -49,11 +52,12 @@ nRF24L01 Registers definition (5-bit)
 #define SPI_CE 				GPIO_Pin_10
 
 
+
 /*nRF Function Declaration*/
 void nRF_Init();
 void nRF_DeInit();
 void nRF_WRITE(char command, char reg_val);
 char nRF_READ(char command);
-void nRF_RX_TX_MODE(char mode);			/*1 = RX; 0= TX*/
+void nRF_RX_TX_MODE(void);			/*1 = RX; 0= TX*/
 void CSN_LOW(void);
 void CSN_HIGH(void);

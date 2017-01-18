@@ -3,15 +3,18 @@
 #include "nRF24.h"
 #include "stm32f10x_spi.h"
 
-extern uint8_t timer_flag2;
-
 /* Configure device into either Receiver or Transmitter */
-void nRF_RX_TX_MODE(char mode){
+void nRF_RX_TX_MODE(void){
+
 	TIM_Cmd(TIM2, ENABLE);
-	GPIO_SetBits(SPI_GPIO_Port, SPI_CE);
-	while (timer_flag2 == 0){}
-	GPIO_ResetBits(SPI_GPIO_Port, SPI_CE);
+	
+	while (timer_flag2 == 0){
+
+	
+	}
+	
 	TIM_Cmd(TIM2, DISABLE);
+	TIM_ITConfig(TIM2, TIM_IT_Update, DISABLE);
 	
 }
 
