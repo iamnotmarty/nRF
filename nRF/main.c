@@ -140,9 +140,14 @@ void SPI_initialize(void){
 
 
 void GPIO_initialize(void){
+// Configure SPI_CSN pin
+  GPIO_InitStructure.GPIO_Pin = SPI_CSN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_Init(SPI_GPIO_Port, &GPIO_InitStructure);
 	
 // Configure SPI_SCK pin
-  GPIO_InitStructure.GPIO_Pin = SPI_MOSI;
+  GPIO_InitStructure.GPIO_Pin = SPI_SCK;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(SPI_GPIO_Port, &GPIO_InitStructure);

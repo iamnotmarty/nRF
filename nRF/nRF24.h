@@ -40,10 +40,20 @@ nRF24L01 Registers definition (5-bit)
 #define W_TX_PAYLOAD_NOACK	0xB0
 #define NOP									0xFF
 
+/*nRF SPI Pins*/
+#define SPI_GPIO_Port	GPIOB
+#define SPI_CSN				GPIO_Pin_12
+#define SPI_SCK 			GPIO_Pin_13
+#define SPI_MISO 			GPIO_Pin_14
+#define SPI_MOSI 			GPIO_Pin_15
+#define SPI_CE 				GPIO_Pin_10
 
 
 /*nRF Function Declaration*/
 void nRF_Init();
 void nRF_DeInit();
-void nRF_Write();
-void nRF_Read();
+void nRF_WRITE(char command, char reg_val);
+char nRF_READ(char command);
+void nRF_RX_TX_MODE(char mode);			/*1 = RX; 0= TX*/
+void CSN_LOW(void);
+void CSN_HIGH(void);
